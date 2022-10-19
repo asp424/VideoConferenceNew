@@ -1,5 +1,7 @@
 package com.example.videoconference.activities;
 
+import static com.example.videoconference.utilities.Constants.CHAT_ID;
+
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,6 +25,9 @@ import com.example.videoconference.utilities.PreferenceManager;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.lm.firebasechat.FirebaseChat;
+
+import java.util.Random;
 
 public class SignInActivity extends AppCompatActivity {
     ActivityResultLauncher<Intent> mStartForResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
@@ -32,6 +37,7 @@ public class SignInActivity extends AppCompatActivity {
                     init();
                 }
             });
+
     private EditText inputEmail, inputPassword;
     private MaterialButton buttonSignIn;
     private ProgressBar signInProgressBar;
@@ -78,26 +84,38 @@ public class SignInActivity extends AppCompatActivity {
         });
     }
     private void signIn(){
-
         buttonSignIn.setVisibility(View.INVISIBLE);
         signInProgressBar.setVisibility(View.VISIBLE);
-
         FirebaseFirestore database = FirebaseFirestore.getInstance();
         database.collection(Constants.KEY_COLLECTION_USERS)
                 .whereEqualTo(Constants.KEY_EMAIL, inputEmail.getText().toString())
                 .whereEqualTo(Constants.KEY_PASSWORD, inputPassword.getText().toString())
                 .get()
                 .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() &&
+                            task.getResult() != null && task.getResult().getDocuments().size() > 0){
+                        DocumentSnapshot documentSnapshot
+                                = task.getResult().getDocuments().get(0);
+                        preferenceManager.putBoolean(
+                                Constants.KEY_IS_SIGNED_IN, true);
+                        preferenceManager.putString(
+                                Constants.KEY_USER_ID,
+                                documentSnapshot.getId());
+                        preferenceManager.putString(
+                                Constants.KEY_FIRST_NAME,
+                                documentSnapshot.getString(Constants.KEY_FIRST_NAME));
+                        preferenceManager.putString
+                                (Constants.KEY_LAST_NAME,
+                                        documentSnapshot
+                                                .getString(Constants.KEY_LAST_NAME));
+                        preferenceManager.putString(Constants.KEY_EMAIL,
+                                documentSnapshot.getString(Constants.KEY_EMAIL));
 
-                    if (task.isSuccessful() && task.getResult() != null && task.getResult().getDocuments().size() > 0){
-                        DocumentSnapshot documentSnapshot = task.getResult().getDocuments().get(0);
-                        preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN,true);
-                        preferenceManager.putString(Constants.KEY_USER_ID, documentSnapshot.getId());
-                        preferenceManager.putString(Constants.KEY_FIRST_NAME, documentSnapshot.getString(Constants.KEY_FIRST_NAME));
-                        preferenceManager.putString(Constants.KEY_LAST_NAME, documentSnapshot.getString(Constants.KEY_LAST_NAME));
-                        preferenceManager.putString(Constants.KEY_EMAIL, documentSnapshot.getString(Constants.KEY_EMAIL));
+                        preferenceManager.putString(CHAT_ID, documentSnapshot.getString(CHAT_ID));
                         Intent intent = new Intent(getApplicationContext(), Main.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        intent.addFlags(
+                                Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        );
                         startActivity(intent);
 
                     }else {
@@ -105,9 +123,6 @@ public class SignInActivity extends AppCompatActivity {
                         buttonSignIn.setVisibility(View.VISIBLE);
                         Toast.makeText(SignInActivity.this, "Невозможно войти", Toast.LENGTH_SHORT).show();
                     }
-
                 });
-
-
     }
 }

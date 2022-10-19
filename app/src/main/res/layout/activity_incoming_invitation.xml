@@ -27,7 +27,7 @@
         android:textColor="@color/white"
         android:textSize="@dimen/_20sdp"
         android:includeFontPadding="false"
-        android:text="Входящий вызов"
+        android:text="@string/incoming_call"
         app:layout_constraintTop_toBottomOf="@+id/imageMeetingType"/>
 
     <LinearLayout

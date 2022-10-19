@@ -10,4 +10,12 @@
     <string name="sending_meeting_invitation">ИСХОДЯЩИЙ ВЫЗОВ</string>
     <string name="not">New Call</string>
     <string name="default_notification_channel_id">123</string>
+    <string name="have_account">У вас ещё нет аккаунта?</string>
+    <string name="secret_video_chat">в секретный видео чат</string>
+    <string name="welcome">Добро пожаловать</string>
+    <string name="sign_in">Войти в профиль</string>
+    <string name="email_email_com">email@email.com</string>
+    <string name="enter">войти</string>
+    <string name="incoming_call">Входящий вызов</string>
+    <string name="id">1</string>
 </resources>

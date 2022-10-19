@@ -28,9 +28,9 @@
                 android:fontFamily="@font/akronim"
                 android:includeFontPadding="false"
                 android:padding="10dp"
-                android:text="Добро пожаловать"
+                android:text="@string/welcome"
                 android:textColor="@color/colorTextIcons"
-                android:textSize="@dimen/_20ssp"
+                android:textSize="@dimen/_20sdp"
                 tools:ignore="MissingConstraints" />
 
             <TextView
@@ -39,9 +39,9 @@
                 android:fontFamily="@font/akronim"
                 android:includeFontPadding="false"
                 android:padding="10dp"
-                android:text="в секретный видео чат"
+                android:text="@string/secret_video_chat"
                 android:textColor="@color/colorTextIcons"
-                android:textSize="@dimen/_20ssp"
+                android:textSize="@dimen/_20sdp"
                 tools:ignore="MissingConstraints" />
         </LinearLayout>
 
@@ -53,10 +53,10 @@
             android:fontFamily="@font/akronim"
             android:includeFontPadding="false"
             android:padding="10dp"
-            android:text="Войти в профиль"
+            android:text="@string/sign_in"
             android:textStyle="bold"
             android:textColor="@color/black"
-            android:textSize="@dimen/_11ssp"
+            android:textSize="@dimen/_11sdp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -98,7 +98,7 @@
                     android:layout_marginStart="@dimen/_8sdp"
                     android:layout_marginEnd="@dimen/_8sdp"
                     android:background="@null"
-                    android:hint="email@email.com"
+                    android:hint="@string/email_email_com"
                     android:imeOptions="actionNext"
                     android:importantForAutofill="no"
                     android:includeFontPadding="false"
@@ -148,7 +148,7 @@
             android:layout_marginTop="@dimen/_20sdp"
             android:layout_marginEnd="@dimen/_20sdp"
             android:includeFontPadding="false"
-            android:text="войти"
+            android:text="@string/enter"
             android:textColor="@color/colorTextIcons"
             android:textSize="@dimen/_13ssp"
             app:layout_constraintTop_toBottomOf="@+id/cardSignIn" />
@@ -163,9 +163,6 @@
             app:layout_constraintStart_toStartOf="@id/buttonSignIn"
             app:layout_constraintTop_toTopOf="@+id/buttonSignIn"/>
 
-
-
-
         <TextView
             android:id="@+id/textNoAccount"
             android:layout_width="match_parent"
@@ -173,7 +170,7 @@
             android:layout_marginTop="@dimen/_20sdp"
             android:gravity="center"
             android:includeFontPadding="false"
-            android:text="У вас ещё нет аккаунта?"
+            android:text="@string/have_account"
             android:textColor="@color/colorPrimaryText"
             android:textSize="@dimen/_13ssp"
             app:layout_constraintTop_toBottomOf="@+id/buttonSignIn"/>
@@ -193,7 +190,6 @@
             android:textSize="@dimen/_14ssp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textNoAccount"/>
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </ScrollView>

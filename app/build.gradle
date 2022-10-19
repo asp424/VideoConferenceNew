@@ -9,11 +9,10 @@ android {
     compileSdk 31
     buildToolsVersion "30.0.3"
 
-
     defaultConfig {
         applicationId "com.example.videoconference"
         minSdk 26
-        targetSdk 31
+        targetSdk 30
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
@@ -31,6 +30,10 @@ android {
         kotlinCompilerExtensionVersion = "1.1.0-alpha06"
     }
     buildTypes {
+        debug {
+            buildConfigField("String", "FCM_SERVER_KEY", "\"AAAApXkUVVY:APA91bGRvBwlq01-ZNjO94Q4EK8m5QtsxZZN-82Rg8O_JhzrYpyH73j42eDUCPolREr43-_r21pgwmOagLpd2Vub_kFFhgPBxYpd-HxPtgOPg875Hsqcj_ETOy9CXc-JMrG0MO6GeNL-\"")
+            buildConfigField("String", "C_KEY", "\"jfdjga879coaerhd\"")
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -99,4 +102,6 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
+
+    implementation(files("libs/chatFirebase.aar"))
 }

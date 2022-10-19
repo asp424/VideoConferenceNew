@@ -4,6 +4,7 @@ import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.Vibrator;
 
+import com.example.videoconference.BuildConfig;
 import com.example.videoconference.R;
 
 import java.util.HashMap;
@@ -41,6 +42,7 @@ public class Constants {
     }
 
     public static final String KEY_COLLECTION_USERS = "users";
+    public static final String CHAT_ID = "chatId";
     public static final String KEY_FIRST_NAME = "first_name";
     public static final String KEY_LAST_NAME = "last_name";
     public static final String KEY_EMAIL = "email";
@@ -71,7 +73,7 @@ public class Constants {
         HashMap<String, String> headers = new HashMap<>();
         headers.put(
                 Constants.REMOTE_MSG_AUTHORIZATION,
-                "key=AAAApXkUVVY:APA91bGRvBwlq01-ZNjO94Q4EK8m5QtsxZZN-82Rg8O_JhzrYpyH73j42eDUCPolREr43-_r21pgwmOagLpd2Vub_kFFhgPBxYpd-HxPtgOPg875Hsqcj_ETOy9CXc-JMrG0MO6GeNL-"
+                "key=" + BuildConfig.FCM_SERVER_KEY
 
         );
         headers.put(Constants.REMOTE_MSG_CONTENT_TYPE, "application/json");

@@ -1,23 +1,20 @@
 package com.example.videoconference.activities;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import com.example.videoconference.utilities.Constants;
 import com.example.videoconference.utilities.PreferenceManager;
 
-import org.jitsi.meet.sdk.JitsiMeet;
 import org.jitsi.meet.sdk.JitsiMeetActivity;
 import org.jitsi.meet.sdk.JitsiMeetConferenceOptions;
 import org.jitsi.meet.sdk.JitsiMeetUserInfo;
-import org.jitsi.meet.sdk.JitsiMeetView;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.UUID;
 
 public class JitsiActivity extends JitsiMeetActivity {
-    private final String meetingRoom = null;
     private Boolean checkAudio = false;
 
     @Override
@@ -30,7 +27,6 @@ public class JitsiActivity extends JitsiMeetActivity {
     @Override
     protected void onConferenceJoined(HashMap<String, Object> extraData) {
         super.onConferenceJoined(extraData);
-
     }
 
     @Override
@@ -69,6 +65,6 @@ public class JitsiActivity extends JitsiMeetActivity {
     @Override
     protected void onConferenceTerminated(HashMap<String, Object> extraData) {
         super.onConferenceTerminated(extraData);
-        finish();
+
     }
 }

@@ -278,10 +278,6 @@ public class OutgoingInvitationActivity extends AppCompatActivity implements Sen
                             builder.setAudioOnly(true);
                         }
                         JitsiMeetActivity.launch(OutgoingInvitationActivity.this,builder.build());
-                       /* Intent intent1 = new Intent(OutgoingInvitationActivity.this, JitsiActivity.class);
-                        intent1.putExtra("meetingType", meetingType);
-                        intent1.putExtra("meetingRoom", meetingRoom);
-                        startActivity(intent1);*/
                         finish();
                     }catch (Exception exception) {
                         Toast.makeText(context, exception.getMessage(), Toast.LENGTH_SHORT).show();

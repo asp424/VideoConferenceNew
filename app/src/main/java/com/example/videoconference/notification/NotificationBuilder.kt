@@ -22,6 +22,7 @@ import androidx.core.net.toUri
 import com.bumptech.glide.Glide
 import com.example.videoconference.R
 import com.example.videoconference.utilities.Constants
+import com.example.videoconference.utilities.Constants.REMOTE_MSG_INVITER_TOKEN
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 
@@ -53,8 +54,8 @@ import com.google.firebase.messaging.RemoteMessage
 fun createNotification(context: Context, remoteMessage: RemoteMessage){
     val getCallIntent = Intent(context, NotificationReceiver::class.java)
         .putExtra(
-            Constants.REMOTE_MSG_INVITATION_RESPONSE,
-            remoteMessage.data[Constants.REMOTE_MSG_INVITER_TOKEN])
+            REMOTE_MSG_INVITER_TOKEN,
+            remoteMessage.data[REMOTE_MSG_INVITER_TOKEN])
         .putExtra("callAnswer", "getCall")
         .putExtra("meetingType", remoteMessage.
         data[Constants.REMOTE_MSG_MEETING_TYPE]
@@ -76,7 +77,6 @@ fun createNotification(context: Context, remoteMessage: RemoteMessage){
         context, 1,
         cancelIntent, PendingIntent.FLAG_CANCEL_CURRENT
     )
-    Log.d("My", remoteMessage.data["avatar"].toString())
     if (remoteMessage.data["avatar"] != "null" &&
         !remoteMessage.data["avatar"].isNullOrEmpty()
     ) {

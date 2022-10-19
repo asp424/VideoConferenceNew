@@ -16,6 +16,7 @@ val Navy900 = Color(0xFF073042)
 val Green300 = Color(0xFF3DDC84)
 val Green900 = Color(0xFF00A956)
 val Yellow900 = Color(0xFFFDD835)
+val DarkGreen = Color(0xFF257015)
 
 val GreenBar = Color(0xFF148F18)
 val Eye = Color(0xFF047C08)

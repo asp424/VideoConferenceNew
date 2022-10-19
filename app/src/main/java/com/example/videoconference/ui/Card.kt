@@ -22,7 +22,6 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CellCard(
     onLongClick: () -> Unit, height: (Dp) -> Unit, inCard: @Composable () -> Unit) {

@@ -1,5 +1,7 @@
 package com.example.videoconference.activities;
 
+import static com.example.videoconference.utilities.Constants.CHAT_ID;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Patterns;
@@ -17,6 +19,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
+import java.util.Random;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -81,7 +84,8 @@ public class SignUpActivity extends AppCompatActivity {
         user.put(Constants.KEY_LAST_NAME, inputLastName.getText().toString());
         user.put(Constants.KEY_EMAIL, inputEmail.getText().toString());
         user.put(Constants.KEY_PASSWORD, inputPassword.getText().toString());
-
+        String chatId = String.valueOf(new Random().nextInt(999));
+        user.put(CHAT_ID, chatId);
 
         database.collection(Constants.KEY_COLLECTION_USERS)
                 .add(user)
@@ -91,6 +95,7 @@ public class SignUpActivity extends AppCompatActivity {
                     preferenceManager.putString(Constants.KEY_FIRST_NAME, inputFirstName.getText().toString());
                     preferenceManager.putString(Constants.KEY_LAST_NAME, inputLastName.getText().toString());
                     preferenceManager.putString(Constants.KEY_EMAIL, inputEmail.getText().toString());
+                    preferenceManager.putString(CHAT_ID, chatId);
                     Intent intent = new Intent(getApplicationContext(), Main.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);

@@ -1,13 +1,20 @@
 package com.example.videoconference.firebase
 
 import android.annotation.SuppressLint
+import android.app.ActivityManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.*
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.example.videoconference.R
 import com.example.videoconference.activities.IncomingInvitationActivity
+import com.example.videoconference.activities.Main
 import com.example.videoconference.notification.NotificationReceiver
 import com.example.videoconference.notification.createMessageChannel
 import com.example.videoconference.notification.createNotification
@@ -23,6 +30,25 @@ import java.util.*
 
 @SuppressLint("MissingFirebaseInstanceTokenRefresh")
 class FBMessageService : FirebaseMessagingService() {
+
+    private val notificationManager
+            by lazy { NotificationManagerCompat.from(this) }
+
+    private val activityManager
+            by lazy { getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager }
+
+    private val notificationBuilder
+            by lazy { NotificationCompat.Builder(this, resources.getString(R.string.id)) }
+
+    private val pendingIntent by lazy {
+        PendingIntent.getActivity(
+            this, 0, Intent(this, Main::class.java)
+                .apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                }, PendingIntent.FLAG_IMMUTABLE
+        )
+    }
+
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
         registerReceiver(NotificationReceiver(),
@@ -78,6 +104,42 @@ class FBMessageService : FirebaseMessagingService() {
                 }
             }
         }
+        if (remoteMessage.data["textMessage"] == "hello"){
+            if (!isRun()) {
+                showNotificationFromMessenger(
+                    notificationManager, notificationBuilder, pendingIntent
+                )
+            }
+        }
+    }
+    private fun isRun(): Boolean {
+        val runningProcesses = activityManager.runningAppProcesses ?: return false
+        for (i in runningProcesses) {
+            if (i.importance ==
+                ActivityManager.RunningAppProcessInfo
+                    .IMPORTANCE_FOREGROUND && i.processName == packageName) return true
+        }
+        return false
+    }
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun showNotificationFromMessenger(
+        notificationManager: NotificationManagerCompat,
+        notificationBuilder: NotificationCompat.Builder,
+        pendingIntent: PendingIntent
+    ) {
+        notificationManager.createNotificationChannel(
+            NotificationChannel("1", "ass", NotificationManager.IMPORTANCE_DEFAULT)
+        )
+
+        notificationManager.notify(
+            1, notificationBuilder
+                .setContentTitle("Snake")
+                .setContentText("Let's play!")
+                .setSmallIcon(R.drawable.anonymous_a)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setContentIntent(pendingIntent)
+                .build()
+        )
     }
 
     @SuppressLint("UnspecifiedImmutableFlag", "RemoteViewLayout")

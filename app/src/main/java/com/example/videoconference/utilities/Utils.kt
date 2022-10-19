@@ -1,15 +1,23 @@
 package com.example.videoconference.utilities
 
 
-
 import android.app.Activity
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import com.example.videoconference.BuildConfig
 import com.example.videoconference.R
 import com.example.videoconference.activities.OutgoingInvitationActivity
 import com.example.videoconference.activities.SettingsActivity
@@ -19,22 +27,28 @@ import com.example.videoconference.models.User
 import com.example.videoconference.models.UserModel
 import com.example.videoconference.network.ApiClient
 import com.example.videoconference.network.ApiService
+import com.example.videoconference.utilities.Constants.CHAT_ID
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.storage.FirebaseStorage
 import com.google.gson.Gson
+import com.lm.firebasechat.FirebaseChat
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.jitsi.meet.sdk.JitsiMeetActivity
+import org.jitsi.meet.sdk.JitsiMeetConferenceOptions
+import org.jitsi.meet.sdk.JitsiMeetUserInfo
 import org.json.JSONArray
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.net.URL
 
 fun showToast(message: String, context: Context) {
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
@@ -65,22 +79,24 @@ fun putPhotoToStorage(
         }
 }
 
-fun getValuePref(applicationContext: Context, key: String): String{
+fun getValuePref(applicationContext: Context, key: String): String {
     return if (!PreferenceManager(applicationContext).getString(key).isNullOrEmpty())
         PreferenceManager(applicationContext).getString(key) else ""
 }
 
-fun getCurrentUser(applicationContext: Context): UserModel{
-    return UserModel(getValuePref(applicationContext, "user_id"),
+fun getCurrentUser(applicationContext: Context): UserModel {
+    return UserModel(
+        getValuePref(applicationContext, "user_id"),
         getValuePref(applicationContext, "first_name"),
         getValuePref(applicationContext, "last_name"),
         getValuePref(applicationContext, "avatar"),
         getValuePref(applicationContext, "email"),
         getValuePref(applicationContext, "fcm_token"),
-        getValuePref(applicationContext, "password"))
+        getValuePref(applicationContext, "password")
+    )
 }
 
-fun getUser(item: DocumentSnapshot): UserModel{
+fun getUser(item: DocumentSnapshot): UserModel {
     return UserModel(
         user_id = item.id,
         first_name = if (item.getString("first_name") != null) item.getString("first_name")!! else "",
@@ -88,12 +104,13 @@ fun getUser(item: DocumentSnapshot): UserModel{
         email = if (item.getString("email") != null) item.getString("email")!! else "",
         token = if (item.getString("fcm_token") != null) item.getString("fcm_token")!! else "",
         avatar = if (item.getString("avatar") != null) item.getString("avatar")!! else "",
-        password = if (item.getString("password") != null) item.getString("password")!! else ""
+        password = if (item.getString("password") != null) item.getString("password")!! else "",
+        chatId = if (item.getString(CHAT_ID) != null) item.getString(CHAT_ID)!! else ""
     )
 }
 
 fun sendFCMTokenToDatabase(context: Context) {
-    FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener { task->
+    FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener { task ->
         if (task.isSuccessful && task.result != null) {
             val database = FirebaseFirestore.getInstance()
             val documentReference =
@@ -136,12 +153,17 @@ fun signOut(context: Context, activity: Activity) {
     documentReference.update(updates)
         .addOnSuccessListener {
             val editor =
-                context.getSharedPreferences(Constants.KEY_PREFERENCE_NAME,
+                context.getSharedPreferences(
+                    Constants.KEY_PREFERENCE_NAME,
                     AppCompatActivity.MODE_PRIVATE
                 ).edit()
             editor.clear()
             editor.apply()
-            context.startActivity(Intent(context, SignInActivity::class.java).addFlags(FLAG_ACTIVITY_NEW_TASK))
+            context.startActivity(
+                Intent(context, SignInActivity::class.java).addFlags(
+                    FLAG_ACTIVITY_NEW_TASK
+                )
+            )
             activity.finish()
         }
         .addOnFailureListener { showToast("Невозможно выйти", context) }
@@ -156,10 +178,10 @@ fun onMultipleUsersAction(context: Context) {
         user.lastName = it.last_name
         user.token = it.token
         listArray.add(user)
-        if (listArray.size == listChecked.size)
-        {
+        if (listArray.size == listChecked.size) {
             val intent = Intent(context, OutgoingInvitationActivity::class.java).addFlags(
-                FLAG_ACTIVITY_NEW_TASK)
+                FLAG_ACTIVITY_NEW_TASK
+            )
             intent.putExtra("selectedUsers", Gson().toJson(listArray))
             intent.putExtra("type", "audio")
             intent.putExtra("isMultiple", true)
@@ -168,7 +190,7 @@ fun onMultipleUsersAction(context: Context) {
     }
 }
 
-fun sendMessageToFMS(token: String, type: String, callAnswer: String){
+fun sendMessageToFMS(token: String, type: String, callAnswer: String) {
     val tokens = JSONArray()
     tokens.put(token)
     val body = JSONObject()
@@ -176,10 +198,12 @@ fun sendMessageToFMS(token: String, type: String, callAnswer: String){
     data
         .put(
             Constants.REMOTE_MSG_TYPE,
-            type)
+            type
+        )
         .put(
             Constants.REMOTE_MSG_INVITATION_RESPONSE,
-            callAnswer)
+            callAnswer
+        )
     body
         .put(Constants.REMOTE_MSG_DATA, data)
         .put(Constants.REMOTE_MSG_REGISTRATION_IDS, tokens)
@@ -191,9 +215,116 @@ fun sendMessageToFMS(token: String, type: String, callAnswer: String){
     })
 }
 
-fun closeNotification(context: Context){
+fun closeNotification(context: Context) {
     val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE)
             as NotificationManager
     notificationManager.cancel(R.string.default_notification_channel_id)
 }
+
+fun sendRemoteMessage(
+    remoteMessageBody: String, type: String, intent: Intent, context: Context, meetingType: String
+) {
+    ApiClient.getClient().create(ApiService::class.java).sendRemoteMessage(
+        Constants.getRemoteMessageHeaders(), remoteMessageBody
+    ).enqueue(object : Callback<String?> {
+        override fun onResponse(call: Call<String?>, response: Response<String?>) {
+            if (response.isSuccessful) {
+                if (type == Constants.REMOTE_MSG_INVITATION_ACCEPTED) {
+                    try {
+                        val preferenceManager = PreferenceManager(context)
+                        val firstName = preferenceManager.getString(Constants.KEY_FIRST_NAME)
+                        val lastName = preferenceManager.getString(Constants.KEY_LAST_NAME)
+                        val username = "$firstName $lastName"
+                        val userInfo = JitsiMeetUserInfo()
+                        userInfo.displayName = username
+                        val serverURL = URL("https://meet.jit.si")
+                        val builder = JitsiMeetConferenceOptions.Builder()
+                        builder.setServerURL(serverURL)
+                        builder.setWelcomePageEnabled(false)
+                        builder.setUserInfo(userInfo)
+                        builder.setRoom(intent.getStringExtra(Constants.REMOTE_MSG_MEETING_ROOM))
+                        if (meetingType == "audio") {
+                            builder.setAudioOnly(true)
+                        }
+
+                        JitsiMeetActivity.launch(context, builder.build())
+                        (context as AppCompatActivity).finish()
+                    } catch (exception: Exception) {
+                        Toast.makeText(
+                            context,
+                            exception.message,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                } else {
+                    Toast.makeText(
+                        context,
+                        "Завершить звонок",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            } else {
+                Toast.makeText(
+                    context,
+                    response.message(),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
+        override fun onFailure(call: Call<String?>, t: Throwable) {
+            Toast.makeText(context, t.message, Toast.LENGTH_SHORT).show()
+        }
+    })
+}
+
+fun sendInvitationResponse(
+    type: String, intent: Intent, context: Context
+) = with(intent) {
+    getStringExtra(Constants.REMOTE_MSG_INVITER_TOKEN)?.also { token ->
+        getStringExtra("meetingType")?.also { meetingType ->
+            try {
+                val tokens = JSONArray()
+                tokens.put(token)
+                val body = JSONObject()
+                val data = JSONObject()
+                data.put(Constants.REMOTE_MSG_TYPE, Constants.REMOTE_MSG_INVITATION_RESPONSE)
+                data.put(Constants.REMOTE_MSG_INVITATION_RESPONSE, type)
+                body.put(Constants.REMOTE_MSG_DATA, data)
+                body.put(Constants.REMOTE_MSG_REGISTRATION_IDS, tokens)
+                sendRemoteMessage(body.toString(), type, intent, context, meetingType)
+            } catch (exception: java.lang.Exception) {
+                Toast.makeText(context, exception.message, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+}
+
+val firebaseChat: (Pair<String, String>) -> FirebaseChat by lazy {
+    {
+        FirebaseChat().setCryptoKey(BuildConfig.C_KEY).setMyDigit(it.first).setHimDigit(it.second)
+    }
+}
+
+val list: MutableState<UIStates> = mutableStateOf(UIStates.Loading)
+
+val writing = mutableStateOf(false)
+
+val isOnline = mutableStateOf(false)
+
+var notify = mutableStateOf(false)
+
+inline fun Modifier.noRippleClickable(crossinline onClick: () -> Unit): Modifier =
+    composed {
+        clickable(indication = null,
+            interactionSource = remember { MutableInteractionSource() }) { onClick() }
+    }
+
+sealed class UIStates {
+    object Loading : UIStates()
+    class Success(val list: List<String>) : UIStates()
+}
+
+val <T> T.log get() = Log.d("My", toString())
+
 

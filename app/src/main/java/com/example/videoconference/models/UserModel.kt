@@ -9,4 +9,5 @@ data class UserModel(
     var token: String = "",
     var password: String = "",
     var checked: Boolean = false,
+    var chatId: String = ""
 )
