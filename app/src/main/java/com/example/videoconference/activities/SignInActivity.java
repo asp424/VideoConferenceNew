@@ -1,6 +1,7 @@
 package com.example.videoconference.activities;
 
 import static com.example.videoconference.utilities.Constants.CHAT_ID;
+import static com.example.videoconference.utilities.UtilsKt.sendFCMTokenToDatabase;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -112,6 +113,7 @@ public class SignInActivity extends AppCompatActivity {
                                 documentSnapshot.getString(Constants.KEY_EMAIL));
 
                         preferenceManager.putString(CHAT_ID, documentSnapshot.getString(CHAT_ID));
+                        sendFCMTokenToDatabase(getApplicationContext());
                         Intent intent = new Intent(getApplicationContext(), Main.class);
                         intent.addFlags(
                                 Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK

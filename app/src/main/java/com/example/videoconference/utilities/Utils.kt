@@ -126,7 +126,7 @@ fun sendFCMTokenToDatabase(context: Context) {
 }
 
 fun initiateMeeting(user: UserModel, type: String, context: Context) {
-    if (user.token.isNullOrEmpty()) {
+    if (user.token.isEmpty()) {
         showToast("Невозможно позвонить" + user.first_name + " " + user.last_name, context)
     } else {
         val intent = Intent(context, OutgoingInvitationActivity::class.java)
@@ -195,17 +195,9 @@ fun sendMessageToFMS(token: String, type: String, callAnswer: String) {
     tokens.put(token)
     val body = JSONObject()
     val data = JSONObject()
-    data
-        .put(
-            Constants.REMOTE_MSG_TYPE,
-            type
-        )
-        .put(
-            Constants.REMOTE_MSG_INVITATION_RESPONSE,
-            callAnswer
-        )
-    body
-        .put(Constants.REMOTE_MSG_DATA, data)
+    data.put(Constants.REMOTE_MSG_TYPE, type)
+        .put(Constants.REMOTE_MSG_INVITATION_RESPONSE, callAnswer)
+    body.put(Constants.REMOTE_MSG_DATA, data)
         .put(Constants.REMOTE_MSG_REGISTRATION_IDS, tokens)
     ApiClient.getClient()?.create(ApiService::class.java)?.sendRemoteMessage(
         Constants.getRemoteMessageHeaders(), body.toString()
@@ -322,7 +314,7 @@ inline fun Modifier.noRippleClickable(crossinline onClick: () -> Unit): Modifier
 
 sealed class UIStates {
     object Loading : UIStates()
-    class Success(val list: List<String>) : UIStates()
+    class Success(val list: List<Pair<String, String>>) : UIStates()
 }
 
 val <T> T.log get() = Log.d("My", toString())

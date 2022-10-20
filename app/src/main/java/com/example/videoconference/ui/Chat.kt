@@ -30,7 +30,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun Chat(firebaseChat: FirebaseChat) {
+fun Chat(firebaseChat: FirebaseChat, name: String, token: String) {
     val getCoroutine = rememberCoroutineScope()
     with(firebaseChat) {
         if (list.value is UIStates.Success) {
@@ -42,14 +42,29 @@ fun Chat(firebaseChat: FirebaseChat) {
                     delay(300)
                     state.animateScrollToItem(listMessages.size)
                 }
+                var text by remember { mutableStateOf("") }
 
+                val click = remember {
+                    {
+                        if (text.isNotEmpty()) {
+                            saveMessage(text)
+                            firebaseChat.sendNotificationOnExternalToken(
+                                BuildConfig.FCM_SERVER_KEY, text
+                            )
+                            text = ""
+                        }
+                        firebaseChat.setNoWriting()
+                        Unit
+                    }
+                }
                 LazyColumn(
                     content = {
                         items(listMessages) {
                             Text(
-                                text = it.parseMessage(),
+                                text = it.first.parseMessage(),
                                 modifier = Modifier
-                                    .padding(bottom = 5.dp)
+                                    .padding(bottom = 5.dp), color =
+                                if (it.second == "green") DarkGreen else Color.Black
                             )
                         }
                     }, modifier = Modifier.fillMaxWidth(),
@@ -58,7 +73,6 @@ fun Chat(firebaseChat: FirebaseChat) {
                     ), state = state
                 )
 
-                var text by remember { mutableStateOf("") }
                 val width = LocalConfiguration.current.screenWidthDp.dp
                 Column(
                     horizontalAlignment = Alignment.Start,
@@ -98,13 +112,7 @@ fun Chat(firebaseChat: FirebaseChat) {
                                     }
                                 }
                             })
-                        FloatingActionButton(onClick = {
-                            if (text.isNotEmpty()) {
-                                saveMessage(text); text = ""
-                                firebaseChat.sendNotification(BuildConfig.FCM_SERVER_KEY)
-                            }
-                            firebaseChat.setNoWriting()
-                        }) {
+                        FloatingActionButton(onClick = click) {
                             Icon(Icons.Default.Send, null)
                         }
                     }

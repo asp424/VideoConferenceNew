@@ -3,18 +3,12 @@ package com.example.videoconference.ui
 import android.content.Intent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Checkbox
-import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.Message
-import androidx.compose.material.icons.filled.VideoCall
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -23,21 +17,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.videoconference.activities.ChatActivity
 import com.example.videoconference.activities.Main
 import com.example.videoconference.activities.SettingsActivity
 import com.example.videoconference.activities.listChecked
 import com.example.videoconference.models.MainViewModel
-import com.example.videoconference.utilities.Constants.CHAT_ID
 import com.example.videoconference.utilities.getUser
 import com.example.videoconference.utilities.getValuePref
-import com.example.videoconference.utilities.initiateMeeting
 import com.example.videoconference.utilities.signOut
 import com.google.firebase.firestore.DocumentSnapshot
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun MainColumn(mainViewModel: MainViewModel, visibleIcon: MutableState<Boolean>) {
+fun MainColumn(mainViewModel: MainViewModel, visibleIcon: MutableState<Boolean>, myChatId: String) {
     val list by mainViewModel.listUsers.observeAsState()
     var heightCard by remember { mutableStateOf(0.dp) }
     var visibleCheck by remember { mutableStateOf(false) }
@@ -83,7 +74,7 @@ fun MainColumn(mainViewModel: MainViewModel, visibleIcon: MutableState<Boolean>)
                                 ChangePhoto(
                                     user = user.value,
                                     photoUrl = avatar,
-                                    onClick = {}, visible = visibleCheck,
+                                    onClick = {},
                                     inRow = {
                                         Visibility(visible = visibleCheck) {
                                             Checkbox(
@@ -95,8 +86,7 @@ fun MainColumn(mainViewModel: MainViewModel, visibleIcon: MutableState<Boolean>)
                                                 }, modifier = Modifier.size(ass)
                                             )
                                         }
-
-                                    }, scaleVisible = !visibleCheck
+                                    }, scaleVisible = !visibleCheck, myChatId = myChatId
                                 )
                             }
                     }

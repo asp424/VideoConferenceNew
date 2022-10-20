@@ -19,11 +19,12 @@ import com.example.videoconference.activities.ChatActivity
 import com.example.videoconference.activities.Main
 import com.example.videoconference.models.UserModel
 import com.example.videoconference.utilities.Constants
+import com.example.videoconference.utilities.Constants.*
 import com.example.videoconference.utilities.initiateMeeting
 
 @Composable
 fun ChangePhoto(
-    visible: Boolean,
+    myChatId: String,
     photoUrl: String,
     onClick: () -> Unit,
     user: UserModel,
@@ -57,13 +58,18 @@ val scale = animateFloatAsState(
                 contentDescription = null,
                 Modifier
                     .size(25.dp)
+                    .scale(if (user.chatId.isNotEmpty() && myChatId.isNotEmpty()) 1f else 0f)
                     .clickable {
                         if (user.chatId.isNotEmpty()) {
                             activity.startActivity(
                                 Intent(
                                     activity,
                                     ChatActivity::class.java
-                                ).apply { putExtra(Constants.CHAT_ID, user.chatId) })
+                                ).apply {
+                                    putExtra(CHAT_ID, user.chatId)
+                                    putExtra(KEY_FIRST_NAME, user.first_name)
+                                    putExtra(REMOTE_MSG_INVITER_TOKEN, user.token)
+                                })
                         }
                     }
             )

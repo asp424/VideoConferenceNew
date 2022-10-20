@@ -90,7 +90,6 @@ dependencies {
     implementation "androidx.compose.runtime:runtime:$compose"
     implementation "androidx.compose.runtime:runtime-livedata:$compose"
     implementation "androidx.compose.compiler:compiler:$compose"
-    implementation "androidx.paging:paging-compose:1.0.0-alpha14"
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
     implementation("io.coil-kt:coil-compose:1.4.0")
     implementation 'androidx.activity:activity-compose:1.4.0'

@@ -23,6 +23,7 @@ class NotificationReceiver : BroadcastReceiver() {
                             Constants.REMOTE_MSG_INVITATION_REJECTED
                         )
                         closeNotification(contextNotNull)
+                        Constants.stopPlay()
                     }
                 }
                 "getCall" -> {

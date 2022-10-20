@@ -12,12 +12,17 @@ import com.example.videoconference.utilities.Constants.stateApp
 var listChecked = mutableListOf<UserModel>()
 
 class Main : AppCompatActivity() {
+
+    private val preferenceManager by lazy { PreferenceManager(applicationContext) }
+
     private val mainViewModel: MainViewModel by viewModels()
     override fun onResume() {
         super.onResume()
         stateApp = 1
         sendFCMTokenToDatabase(applicationContext)
-        setContent { MainScreen(mainViewModel) }
+        preferenceManager.getString(Constants.CHAT_ID)?.also { myChatId ->
+            setContent { MainScreen(mainViewModel, myChatId) }
+        }
     }
 
     override fun onPause() {

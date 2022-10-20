@@ -6,9 +6,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.*
-import android.os.Build
-import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -19,9 +16,11 @@ import com.example.videoconference.notification.NotificationReceiver
 import com.example.videoconference.notification.createMessageChannel
 import com.example.videoconference.notification.createNotification
 import com.example.videoconference.utilities.Constants
+import com.example.videoconference.utilities.Constants.MESSAGE
 import com.example.videoconference.utilities.sendMessageToFMS
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.lm.firebasechat.FirebaseMessageServiceChatCallback
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,9 +43,13 @@ class FBMessageService : FirebaseMessagingService() {
         PendingIntent.getActivity(
             this, 0, Intent(this, Main::class.java)
                 .apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                }, PendingIntent.FLAG_IMMUTABLE
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK },
+                    PendingIntent.FLAG_IMMUTABLE
         )
+    }
+
+    private val firebaseMessageServiceChatCallback by lazy {
+        FirebaseMessageServiceChatCallback()
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
@@ -63,7 +66,6 @@ class FBMessageService : FirebaseMessagingService() {
                 }
                 Constants.REMOTE_MSG_INVITATION -> {
                     if (Constants.stateApp == 1) {
-                        Constants.startPlay(this, "in")
                         startActivity(Intent(applicationContext, IncomingInvitationActivity::class.java)
                             .putExtra(
                                 Constants.REMOTE_MSG_MEETING_TYPE,
@@ -87,6 +89,7 @@ class FBMessageService : FirebaseMessagingService() {
                     } else {
                         showNotification(remoteMessage)
                     }
+                    Constants.startPlay(this, "in")
                 }
                 Constants.REMOTE_MSG_INVITATION_RESPONSE -> {
                     Constants.stopPlay()
@@ -104,14 +107,14 @@ class FBMessageService : FirebaseMessagingService() {
                 }
             }
         }
-        if (remoteMessage.data["textMessage"] == "hello"){
-            if (!isRun()) {
-                showNotificationFromMessenger(
-                    notificationManager, notificationBuilder, pendingIntent
-                )
-            }
+        val textMessage = remoteMessage.data[MESSAGE]?:""
+        val name = remoteMessage.data["name"]?:""
+        if (!isRun() && textMessage.isNotEmpty()) {
+            showNotificationFromMessenger(textMessage, name)
+           firebaseMessageServiceChatCallback.sendCallBack(remoteMessage)
         }
     }
+
     private fun isRun(): Boolean {
         val runningProcesses = activityManager.runningAppProcesses ?: return false
         for (i in runningProcesses) {
@@ -121,20 +124,15 @@ class FBMessageService : FirebaseMessagingService() {
         }
         return false
     }
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun showNotificationFromMessenger(
-        notificationManager: NotificationManagerCompat,
-        notificationBuilder: NotificationCompat.Builder,
-        pendingIntent: PendingIntent
-    ) {
+    private fun showNotificationFromMessenger(message: String, name: String) {
         notificationManager.createNotificationChannel(
             NotificationChannel("1", "ass", NotificationManager.IMPORTANCE_DEFAULT)
         )
 
         notificationManager.notify(
             1, notificationBuilder
-                .setContentTitle("Snake")
-                .setContentText("Let's play!")
+                .setContentTitle(name)
+                .setContentText(message)
                 .setSmallIcon(R.drawable.anonymous_a)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setContentIntent(pendingIntent)
@@ -151,7 +149,7 @@ class FBMessageService : FirebaseMessagingService() {
                 callAnswer = "тыква"
             )
             createMessageChannel(this@FBMessageService)
-          createNotification(this@FBMessageService, remoteMessage)
+            createNotification(this@FBMessageService, remoteMessage)
         }
 }
 

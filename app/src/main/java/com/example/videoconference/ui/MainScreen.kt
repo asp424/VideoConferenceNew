@@ -15,7 +15,7 @@ import com.example.videoconference.utilities.onMultipleUsersAction
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun MainScreen(mainViewModel: MainViewModel) {
+fun MainScreen(mainViewModel: MainViewModel, myChatId: String) {
     val visibleIcon = remember { mutableStateOf(false) }
     val activity = LocalContext.current as Main
 
@@ -42,5 +42,5 @@ fun MainScreen(mainViewModel: MainViewModel) {
             }
         }
     }
-    MainColumn(mainViewModel, visibleIcon)
+    MainColumn(mainViewModel, visibleIcon, myChatId)
 }
